@@ -3,174 +3,1259 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mod Pack Downloader</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<title>Fabric 26.2 Mod Pack</title>
+
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap"
+  rel="stylesheet"
+>
+
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+
 <style>
-body { margin:0; font-family: Inter, sans-serif; background: linear-gradient(135deg,#0f172a,#020617); color:#e5e7eb; }
-header{ padding:40px 20px; text-align:center; }
-header h1{ font-size:42px; font-weight:800; }
-header p{ opacity:.7; }
-.container{ max-width:1200px; margin:auto; padding:20px; display:grid; gap:28px; }
-.category{ background:#020617cc; border:1px solid #1f2937; border-radius:20px; padding:20px; }
-.category h2{ margin-top:0; font-size:22px; }
-.mod{ display:flex; justify-content:space-between; align-items:center; background:#020617; border:1px solid #1f2937; padding:14px 16px; border-radius:14px; margin-top:10px; }
-.mod-name{ font-weight:600; }
-.btns{ display:flex; gap:10px; }
-button{ border:none; border-radius:12px; padding:8px 14px; font-weight:600; cursor:pointer; }
-.download{ background:#22c55e; color:black; }
-.page{ background:#38bdf8; color:black; }
-.bulk{ background:#a78bfa; color:black; padding:14px 22px; font-size:16px; border-radius:16px; }
-#progressBox{ max-width:600px; margin:20px auto 0; display:none; }
-.progress-bar{ width:100%; height:18px; background:#111827; border-radius:999px; overflow:hidden; border:1px solid #1f2937; }
-.progress-fill{ height:100%; width:0%; background:#22c55e; transition:width .2s ease; }
-#progressText{ margin-top:8px; font-size:14px; opacity:.8; }
-footer{ text-align:center; opacity:.6; padding:30px; }
+:root {
+  --bg: #020617;
+  --bg2: #0f172a;
+  --card: rgba(2, 6, 23, .82);
+  --card2: #020617;
+  --border: #1e293b;
+  --text: #e5e7eb;
+  --muted: #94a3b8;
+  --green: #22c55e;
+  --blue: #38bdf8;
+  --purple: #a78bfa;
+  --red: #ef4444;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at top, #172554 0%, transparent 35%),
+    linear-gradient(135deg, var(--bg2), var(--bg));
+  min-height: 100vh;
+}
+
+header {
+  padding: 55px 20px 30px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: clamp(32px, 6vw, 52px);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+}
+
+header p {
+  margin: 12px 0 25px;
+  color: var(--muted);
+}
+
+.version {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 7px 13px;
+  border: 1px solid #334155;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, .8);
+  color: #cbd5e1;
+  font-size: 13px;
+}
+
+.container {
+  width: min(1200px, calc(100% - 30px));
+  margin: auto;
+  padding: 20px 0 50px;
+  display: grid;
+  gap: 24px;
+}
+
+.category {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,.18);
+}
+
+.category h2 {
+  margin: 0 0 15px;
+  font-size: 21px;
+}
+
+.mod {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+
+  background: var(--card2);
+  border: 1px solid var(--border);
+
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin-top: 10px;
+
+  transition:
+    border-color .2s ease,
+    transform .2s ease,
+    background .2s ease;
+}
+
+.mod:hover {
+  transform: translateY(-1px);
+  border-color: #334155;
+  background: #07101f;
+}
+
+.mod-name {
+  font-weight: 600;
+}
+
+.mod-version {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.btns {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+button {
+  border: none;
+  border-radius: 11px;
+  padding: 9px 13px;
+  font-family: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform .15s ease,
+    opacity .15s ease;
+}
+
+button:hover {
+  transform: translateY(-1px);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+  transform: none;
+}
+
+.download {
+  background: var(--green);
+  color: #001b08;
+}
+
+.page {
+  background: var(--blue);
+  color: #001522;
+}
+
+.bulk {
+  background: linear-gradient(135deg, #a78bfa, #8b5cf6);
+  color: #10051f;
+  padding: 14px 22px;
+  font-size: 16px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(139, 92, 246, .25);
+}
+
+#progressBox {
+  width: min(650px, 100%);
+  margin: 25px auto 0;
+  display: none;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 18px;
+  background: #111827;
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid #1f2937;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+  transition: width .2s ease;
+}
+
+#progressText {
+  margin-top: 9px;
+  font-size: 13px;
+  color: #cbd5e1;
+}
+
+#status {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.error-list {
+  margin: 12px auto 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+  color: #fca5a5;
+  font-size: 12px;
+}
+
+.error-list li {
+  padding: 4px 0;
+}
+
+footer {
+  text-align: center;
+  color: #64748b;
+  padding: 30px 20px 50px;
+  font-size: 13px;
+}
+
+@media (max-width: 650px) {
+  .mod {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .btns {
+    width: 100%;
+  }
+
+  .btns button {
+    flex: 1;
+  }
+
+  .category {
+    padding: 15px;
+  }
+}
 </style>
 </head>
+
 <body>
 
 <header>
+
+  <div class="version">
+    Fabric • Minecraft 26.2
+  </div>
+
   <h1>⚡ Fabric Mod Pack</h1>
-  <p>Download individual mods or grab the full pack instantly</p>
-  <button class="bulk" onclick="downloadAll()">Download Full Pack (ZIP)</button>
+
+  <p>
+    Download individual mods or grab the entire pack as one ZIP.
+  </p>
+
+  <button
+    id="bulkButton"
+    class="bulk"
+    onclick="downloadAll()"
+  >
+    Download Full Pack (ZIP)
+  </button>
 
   <div id="progressBox">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div id="progressText">Preparing downloads...</div>
+
+    <div class="progress-bar">
+      <div
+        class="progress-fill"
+        id="progressFill"
+      ></div>
+    </div>
+
+    <div id="progressText">
+      Preparing downloads...
+    </div>
+
+    <div id="status"></div>
+
+    <ul
+      id="errorList"
+      class="error-list"
+    ></ul>
+
   </div>
+
 </header>
 
-<div class="container" id="mods"></div>
-<footer>Built for easy mod sharing • Direct Modrinth downloads</footer>
+<main
+  class="container"
+  id="mods"
+></main>
+
+<footer>
+  Built for easy mod sharing • Downloads from Modrinth
+</footer>
+
 
 <script>
-function niceName(id){
-  return id.replace(/[_-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-}
-function fileNameFromUrl(url){
-  const part = url.split('/').pop();
-  return decodeURIComponent(part);
-}
+
+/* =========================================================
+   MOD PACK
+   Minecraft 26.2 / Fabric
+   ========================================================= */
 
 const categories = {
 
-"⚙️ Core & Libraries": [
-["fabric-api","https://cdn.modrinth.com/data/P7dR8mSH/versions/i5tSkVBH/fabric-api-0.141.3%2B1.21.11.jar","https://modrinth.com/mod/fabric-api"],
-["balm","https://cdn.modrinth.com/data/MBAkmtvl/versions/sbE6e5Gh/balm-fabric-1.21.11-21.11.6.jar","https://modrinth.com/mod/balm"],
-["cloth-config","https://cdn.modrinth.com/data/9s6osm5g/versions/xuX40TN5/cloth-config-21.11.153-fabric.jar","https://modrinth.com/mod/cloth-config"],
-["architectury","https://cdn.modrinth.com/data/lhGA9TYQ/versions/uNdfrcQ8/architectury-19.0.1-fabric.jar","https://modrinth.com/mod/architectury-api"],
-["fabric-language-kotlin","https://cdn.modrinth.com/data/Ha28R6CL/versions/ViT4gucI/fabric-language-kotlin-1.13.9%2Bkotlin.2.3.10.jar","https://modrinth.com/mod/fabric-language-kotlin"],
-["yacl-v3","https://cdn.modrinth.com/data/1eAoo2KR/versions/pHWDw3Vc/yet_another_config_lib_v3-3.8.2%2B1.21.11-fabric.jar","https://modrinth.com/mod/yacl"],
-["malilib","https://cdn.modrinth.com/data/GcWjdA9I/versions/jsdKvp3x/malilib-fabric-1.21.11-0.27.5.jar","https://modrinth.com/mod/malilib"],
-["modmenu","https://cdn.modrinth.com/data/mOgUt4GM/versions/JWQVh32x/modmenu-17.0.0-beta.2.jar","https://modrinth.com/mod/modmenu"]
-],
+  "⚙️ Core & Libraries": [
 
-"🚀 Performance": [
-["sodium","https://cdn.modrinth.com/data/AANobbMI/versions/1OWNgWVR/sodium-fabric-0.8.4%2Bmc1.21.11.jar","https://modrinth.com/mod/sodium"],
-["sodium-extra","https://cdn.modrinth.com/data/PtjYWJkn/versions/yqY1efrC/sodium-extra-fabric-0.8.3%2Bmc1.21.11.jar","https://modrinth.com/mod/sodium-extra"],
-["lithium","https://cdn.modrinth.com/data/gvQqBUqZ/versions/qvNsoO3l/lithium-fabric-0.21.3%2Bmc1.21.11.jar","https://modrinth.com/mod/lithium"],
-["ferritecore","https://cdn.modrinth.com/data/uXXizFIs/versions/Ii0gP3D8/ferritecore-8.2.0-fabric.jar","https://modrinth.com/mod/ferrite-core"],
-["entityculling","https://cdn.modrinth.com/data/NNAgCjsB/versions/Dx3xsUER/entityculling-fabric-1.9.5-mc1.21.11.jar","https://modrinth.com/mod/entityculling"],
-["immediatelyfast","https://cdn.modrinth.com/data/5ZwdcRci/versions/QwkfUKSj/ImmediatelyFast-Fabric-1.14.2%2B1.21.11.jar","https://modrinth.com/mod/immediatelyfast"],
-["dynamic-fps","https://cdn.modrinth.com/data/LQ3K71Q1/versions/PUe5Asxs/dynamic-fps-3.11.4%2Bminecraft-1.21.11-fabric.jar","https://modrinth.com/mod/dynamic-fps"],
-["bobby","https://cdn.modrinth.com/data/M08ruV16/versions/y6wx9vV9/bobby-5.2.11%2Bmc1.21.11.jar","https://modrinth.com/mod/bobby"],
-["krypton","https://cdn.modrinth.com/data/fQEb0iXm/versions/O9LmWYR7/krypton-0.2.10.jar","https://modrinth.com/mod/krypton"],
-["alternate-current","https://cdn.modrinth.com/data/r0v8vy1s/versions/XdouG8YV/alternate-current-mc1.21.11-1.9.0.jar","https://modrinth.com/mod/alternate-current"]
-],
+    {
+      id: "fabric-api",
+      version: "0.158.0",
+      file: "https://cdn.modrinth.com/data/P7dR8mSH/versions/NqwNSxwA/fabric-api-0.158.0%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/fabric-api"
+    },
 
-"🗺️ Gameplay & World": [
-["waystones","https://cdn.modrinth.com/data/LOpKHB2A/versions/MXw10FSq/waystones-fabric-1.21.11-21.11.4.jar","https://modrinth.com/mod/waystones"],
-["journeymap","https://cdn.modrinth.com/data/lfHFW1mp/versions/OSpjUIEM/journeymap-fabric-1.21.11-6.0.0-beta.56.jar","https://modrinth.com/mod/journeymap"],
-["voicechat","https://cdn.modrinth.com/data/9eGKb6K1/versions/1OVXKX2W/voicechat-fabric-1.21.11-2.6.11.jar","https://modrinth.com/mod/simple-voice-chat"],
-],
+    {
+      id: "balm",
+      version: "26.2-26.2.0.6",
+      file: "https://cdn.modrinth.com/data/MBAkmtvl/versions/hT8Zt2uD/balm-fabric-26.2-26.2.0.6.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/balm"
+    },
 
-"🎨 Visual, UI & QoL": [
-["iris","https://cdn.modrinth.com/data/YL57xq9U/versions/ZQx4ktUs/iris-fabric-1.10.5%2Bmc1.21.11.jar","https://modrinth.com/mod/iris"],
-["continuity","https://cdn.modrinth.com/data/1IjD5062/versions/mX1iknM1/continuity-3.0.1-beta.1%2B1.21.11.jar","https://modrinth.com/mod/continuity"],
-["lambdynamiclights","https://cdn.modrinth.com/data/yBW8D80W/versions/5Tp7kdU0/lambdynamiclights-4.9.1%2B1.21.11.jar","https://modrinth.com/mod/lambdynamiclights"],
-["visuality","https://cdn.modrinth.com/data/rI0hvYcd/versions/H81pJbu3/visuality-0.7.12%2B1.21.11.jar","https://modrinth.com/mod/visuality"],
-["notenoughanimations","https://cdn.modrinth.com/data/MPCX6s5C/versions/yCHrusjr/notenoughanimations-fabric-1.11.2-mc1.21.11.jar","https://modrinth.com/mod/not-enough-animations"],
-["particlerain","https://cdn.modrinth.com/data/nrikgvxm/versions/8kdLx5yJ/particlerain-4.0.0-beta.5%2B1.21.11-fabric.jar","https://modrinth.com/mod/particle-rain"],
-["make_bubbles_pop","https://cdn.modrinth.com/data/gPCdW0Wr/versions/v9TIiXcG/make_bubbles_pop-0.3.2-fabric-mc1.21.9-1.21.10.jar","https://modrinth.com/mod/make-bubbles-pop"],
-["fabrishot","https://cdn.modrinth.com/data/3qsfQtE9/versions/GLPR7u6l/fabrishot-1.16.4.jar","https://modrinth.com/mod/fabrishot"],
-["clickthrough-plus","https://cdn.modrinth.com/data/fJi8nm80/versions/KwJ4yIqY/clickthrough-plus-3.6.1%2B1.21.11-fabric.jar","https://modrinth.com/mod/clickthrough-plus"],
-["boatiview","https://cdn.modrinth.com/data/BdKIyOLe/versions/zgsaYcVL/boatiview-fabric-0.0.8-1.21.11.jar","https://modrinth.com/mod/boatview"],
-["mousetweaks","https://cdn.modrinth.com/data/aC3cM3Vq/versions/i1duwnJl/MouseTweaks-fabric-mc1.21.11-2.30.jar","https://modrinth.com/mod/mouse-tweaks"],
-["appleskin","https://cdn.modrinth.com/data/EsAfCjCV/versions/59ti1rvg/appleskin-fabric-mc1.21.11-3.0.8.jar","https://modrinth.com/mod/appleskin"],
-["zoomify","https://cdn.modrinth.com/data/w7ThoJFB/versions/gI5KZI8V/zoomify-2.15.2%2B1.21.11.jar","https://modrinth.com/mod/zoomify"],
-["betterf3","https://cdn.modrinth.com/data/8shC1gFX/versions/Qw1nhj7u/BetterF3-17.0.0-Fabric-1.21.11.jar","https://modrinth.com/mod/betterf3"],
-["betterf1","https://cdn.modrinth.com/data/2JIeCmxb/versions/ZGXovn58/BetterF1-Fabric-1.1%2B1.21.9.jar","https://modrinth.com/mod/betterf1"],
-["better-ping-display","https://cdn.modrinth.com/data/MS1ZMyR7/versions/HPJcBg0P/better-ping-display-fabric-1.21.11-1.2.0.jar","https://modrinth.com/mod/better-ping-display"],
-["morechathistory","https://cdn.modrinth.com/data/8qkXwOnk/versions/3siYJiWG/morechathistory-1.3.1.jar","https://modrinth.com/mod/more-chat-history"],
-["smoothscrolling","https://cdn.modrinth.com/data/trr0scVt/versions/CQGsF1Uq/SmoothScrollingRefurbished%2B1.21.10-1.5.1.jar","https://modrinth.com/mod/smooth-scrolling"],
-["chat_heads","https://cdn.modrinth.com/data/Wb5oqrBJ/versions/AAR2TTo3/chat_heads-1.2.1-fabric-1.21.11.jar","https://modrinth.com/mod/chat-heads"],
-["shulkerboxtooltip","https://cdn.modrinth.com/data/2M01OLQq/versions/2lPKqJBJ/shulkerboxtooltip-fabric-5.2.15%2B1.21.11.jar","https://modrinth.com/mod/shulkerboxtooltip"],
-["resourcify","https://cdn.modrinth.com/data/RLzHAoZe/versions/7Y4gDiMH/Resourcify%20%281.21.11-fabric%29-1.8.0.jar","https://modrinth.com/mod/resourcify"]
-]
+    {
+      id: "cloth-config",
+      version: "26.2.155",
+      file: "https://cdn.modrinth.com/data/9s6osm5g/versions/Nv3xnWXd/cloth-config-26.2.155.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/cloth-config"
+    },
+
+    {
+      id: "fabric-language-kotlin",
+      version: "1.13.13 + Kotlin 2.4.10",
+      file: "https://cdn.modrinth.com/data/Ha28R6CL/versions/bdhiINYC/fabric-language-kotlin-1.13.13%2Bkotlin.2.4.10.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/fabric-language-kotlin"
+    },
+
+    {
+      id: "yacl-v3",
+      version: "3.9.6",
+      file: "https://cdn.modrinth.com/data/1eAoo2KR/versions/cnfPzuFU/yet_another_config_lib_v3-3.9.6%2B26.2-fabric.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/yacl"
+    },
+
+    {
+      id: "malilib",
+      version: "0.29.4",
+      file: "https://cdn.modrinth.com/data/GcWjdA9I/versions/ZCq1iE1J/malilib-fabric-26.2-0.29.4.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/malilib"
+    },
+
+    {
+      id: "modmenu",
+      version: "20.0.1",
+      file: "https://cdn.modrinth.com/data/mOgUt4GM/versions/njXb639R/modmenu-20.0.1.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/modmenu"
+    }
+
+  ],
+
+
+  "🚀 Performance": [
+
+    {
+      id: "sodium",
+      version: "0.9.1",
+      file: "https://cdn.modrinth.com/data/AANobbMI/versions/2Yom1N68/sodium-fabric-0.9.1%2Bmc26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/sodium"
+    },
+
+    {
+      id: "sodium-extra",
+      version: "0.9.3",
+      file: "https://cdn.modrinth.com/data/PtjYWJkn/versions/Fu02wj4x/sodium-extra-fabric-0.9.3%2Bmc26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/sodium-extra"
+    },
+
+    {
+      id: "lithium",
+      version: "0.25.3",
+      file: "https://cdn.modrinth.com/data/gvQqBUqZ/versions/f7vZ0VWU/lithium-fabric-0.25.3%2Bmc26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/lithium"
+    },
+
+    {
+      id: "ferritecore",
+      version: "9.0.0",
+      file: "https://cdn.modrinth.com/data/uXXizFIs/versions/d5ddUdiB/ferritecore-9.0.0-fabric.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/ferrite-core"
+    },
+
+    {
+      id: "entityculling",
+      version: "1.10.5",
+      file: "https://cdn.modrinth.com/data/NNAgCjsB/versions/iiF6U3Ne/entityculling-fabric-1.10.5-mc26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/entityculling"
+    },
+
+    {
+      id: "immediatelyfast",
+      version: "1.16.3",
+      file: "https://cdn.modrinth.com/data/5ZwdcRci/versions/rxHcwxdQ/ImmediatelyFast-Fabric-1.16.3%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/immediatelyfast"
+    },
+
+    {
+      id: "dynamic-fps",
+      version: "3.11.9",
+      file: "https://cdn.modrinth.com/data/LQ3K71Q1/versions/pC2JjFw1/dynamic-fps-3.11.9%2Bminecraft-26.2.0-fabric.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/dynamic-fps"
+    },
+
+    {
+      id: "bobby",
+      version: "5.2.15",
+      file: "https://cdn.modrinth.com/data/M08ruV16/versions/KLiFVFju/bobby-5.2.15%2Bmc26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/bobby"
+    },
+
+    {
+      id: "krypton",
+      version: "0.3.1",
+      file: "https://cdn.modrinth.com/data/fQEb0iXm/versions/5WeL0Nkz/krypton-0.3.1.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/krypton"
+    },
+
+    {
+      id: "alternate-current",
+      version: "1.9.0",
+      file: "https://cdn.modrinth.com/data/r0v8vy1s/versions/blSBYnpw/alternate-current-mc26.2-1.9.0.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/alternate-current"
+    }
+
+  ],
+
+
+  "🗺️ Gameplay & World": [
+
+    {
+      id: "waystones",
+      version: "26.2.0.9",
+      file: "https://cdn.modrinth.com/data/LOpKHB2A/versions/5lrxhmSm/waystones-fabric-26.2-26.2.0.9.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/waystones"
+    },
+
+    {
+      id: "journeymap",
+      version: "6.0.5",
+      file: "https://cdn.modrinth.com/data/lfHFW1mp/versions/HDly3jmH/journeymap-fabric-26.2-6.0.5.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/journeymap"
+    },
+
+    {
+      id: "voicechat",
+      version: "2.6.22",
+      file: "https://cdn.modrinth.com/data/9eGKb6K1/versions/DKSq5wO6/voicechat-fabric-2.6.22%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/simple-voice-chat"
+    }
+
+  ],
+
+
+  "🎨 Visual, UI & QoL": [
+
+    {
+      id: "iris",
+      version: "1.11.2",
+      file: "https://cdn.modrinth.com/data/YL57xq9U/versions/oaD6KQls/iris-fabric-1.11.2%2Bmc26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/iris"
+    },
+
+    {
+      id: "continuity",
+      version: "3.0.1",
+      file: "https://cdn.modrinth.com/data/1IjD5062/versions/mgUN5Xz2/continuity-3.0.1%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/continuity"
+    },
+
+    {
+      id: "lambdynamiclights",
+      version: "4.12.3",
+      file: "https://cdn.modrinth.com/data/yBW8D80W/versions/LCAMVAqE/lambdynamiclights-4.12.3%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/lambdynamiclights"
+    },
+
+    {
+      id: "visuality",
+      version: "0.7.14",
+      file: "https://cdn.modrinth.com/data/rI0hvYcd/versions/uO9xagp1/visuality-0.7.14%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/visuality"
+    },
+
+    {
+      id: "notenoughanimations",
+      version: "1.12.4",
+      file: "https://cdn.modrinth.com/data/MPCX6s5C/versions/67xQnLDS/notenoughanimations-fabric-1.12.4-mc26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/not-enough-animations"
+    },
+
+    {
+      id: "particlerain",
+      version: "4.0.0-beta.10",
+      file: "https://cdn.modrinth.com/data/nrikgvxm/versions/s4RPlVYL/particlerain-4.0.0-beta.10%2B26.1-fabric.jar?mr_download_reason=standalone&mr_game_version=26.1.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/particle-rain"
+    },
+
+    {
+      id: "make-bubbles-pop",
+      version: "0.3.4",
+      file: "https://cdn.modrinth.com/data/gPCdW0Wr/versions/CAFPNCYd/make_bubbles_pop-0.3.4-fabric-mc26.2.x.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/make-bubbles-pop"
+    },
+
+    {
+      id: "clickthrough-plus",
+      version: "3.6.5",
+      file: "https://cdn.modrinth.com/data/fJi8nm80/versions/JMmN2bhs/clickthrough-plus-3.6.5%2B26.1.2-fabric.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/clickthrough%2B"
+    },
+
+    {
+      id: "placeholder-api",
+      version: "3.1.0-beta.1",
+      file: "https://cdn.modrinth.com/data/eXts2L7r/versions/NDqH16LT/placeholder-api-3.1.0-beta.1%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/placeholder-api"
+    },
+
+    {
+      id: "mousetweaks",
+      version: "2.31",
+      file: "https://cdn.modrinth.com/data/aC3cM3Vq/versions/jOiTBIaB/MouseTweaks-fabric-mc26.2-2.31.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/mouse-tweaks"
+    },
+
+    {
+      id: "appleskin",
+      version: "3.0.10",
+      file: "https://cdn.modrinth.com/data/EsAfCjCV/versions/uo5bAN1Y/appleskin-fabric-mc26.2-3.0.10.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/appleskin"
+    },
+
+    {
+      id: "zoomify",
+      version: "2.16.1",
+      file: "https://cdn.modrinth.com/data/w7ThoJFB/versions/QWTzJNJY/zoomify-2.16.1%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/zoomify"
+    },
+
+    {
+      id: "betterf3",
+      version: "19.0.0",
+      file: "https://cdn.modrinth.com/data/8shC1gFX/versions/6zNdg01Z/BetterF3-19.0.0-Fabric-26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/betterf3"
+    },
+
+    {
+      id: "morechathistory",
+      version: "2.0.0",
+      file: "https://cdn.modrinth.com/data/8qkXwOnk/versions/qpDhYv1Y/morechathistory-2.0.0.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/more-chat-history"
+    },
+
+    {
+      id: "chat-heads",
+      version: "1.2.8",
+      file: "https://cdn.modrinth.com/data/Wb5oqrBJ/versions/lyZOZ4qX/chat_heads-1.2.8-fabric-26.1.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/chat-heads"
+    },
+
+    {
+      id: "shulkerboxtooltip",
+      version: "5.4.0",
+      file: "https://cdn.modrinth.com/data/2M01OLQq/versions/IHUNStdu/shulkerboxtooltip-fabric-5.4.0%2B26.2.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/shulkerboxtooltip"
+    },
+
+    {
+      id: "resourcify",
+      version: "1.8.5",
+      file: "https://cdn.modrinth.com/data/RLzHAoZe/versions/6haoMa46/Resourcify%20%2826.2-fabric%29-1.8.5.jar?mr_download_reason=standalone&mr_game_version=26.2&mr_loader=fabric",
+      page: "https://modrinth.com/mod/resourcify"
+    }
+
+  ]
+
 };
 
-function render(){
-  const root = document.getElementById('mods');
-  Object.entries(categories).forEach(([cat,mods])=>{
-    const box=document.createElement('div');
-    box.className='category';
-    box.innerHTML=`<h2>${cat}</h2>`;
-    mods.forEach(m=>{
-      const el=document.createElement('div');
-      el.className='mod';
-      el.innerHTML=`
-        <div class='mod-name'>${niceName(m[0])}</div>
-        <div class='btns'>
-          <button class='page' onclick="window.open('${m[2]}','_blank')">Modrinth</button>
-          <button class='download' onclick="downloadOne('${m[1]}')">Download</button>
-        </div>`;
-      box.appendChild(el);
-    });
-    root.appendChild(box);
-  });
+
+/* =========================================================
+   HELPERS
+   ========================================================= */
+
+function niceName(id) {
+  return id
+    .replace(/[_-]/g, " ")
+    .replace(/\b\w/g, c => c.toUpperCase());
 }
 
-function downloadOne(url){ const a=document.createElement('a'); a.href=url; a.download=''; a.click(); }
 
-function setProgress(done,total,name){
-  const pct = Math.round((done/total)*100);
-  document.getElementById('progressFill').style.width = pct+"%";
-  document.getElementById('progressText').innerText = `Downloading ${name} (${done}/${total}) — ${pct}%`;
-}
+function getFileName(url) {
 
-async function downloadAll(){
-  const box = document.getElementById('progressBox');
-  box.style.display = 'block';
+  try {
 
-  const zip=new JSZip();
-  const files = Object.values(categories).flat();
-  const total = files.length;
-  let done = 0;
+    const cleanUrl = url.split("?")[0];
 
-  for(const m of files){
-    try{
-      setProgress(done,total,niceName(m[0]));
-      const res=await fetch(m[1]);
-      if(!res.ok) throw new Error('fail');
-      const blob=await res.blob();
-      zip.file(fileNameFromUrl(m[1]),blob);
-      done++;
-      setProgress(done,total,niceName(m[0]));
-    }catch(e){
-      done++;
-      setProgress(done,total,niceName(m[0])+" (skipped)");
-    }
+    const lastPart =
+      cleanUrl.substring(cleanUrl.lastIndexOf("/") + 1);
+
+    return decodeURIComponent(lastPart);
+
+  } catch {
+
+    return "mod.jar";
+
   }
 
-  document.getElementById('progressText').innerText = "Building ZIP...";
-  const content=await zip.generateAsync({type:"blob"});
-  saveAs(content,"mods.zip");
-  document.getElementById('progressText').innerText = "Done ✅";
 }
 
+
+/*
+ * Make sure two files can never have the same name
+ * inside the ZIP.
+ */
+function uniqueFileName(name, usedNames) {
+
+  if (!usedNames.has(name)) {
+
+    usedNames.add(name);
+
+    return name;
+
+  }
+
+  const dot = name.lastIndexOf(".");
+
+  const base =
+    dot === -1
+      ? name
+      : name.substring(0, dot);
+
+  const ext =
+    dot === -1
+      ? ""
+      : name.substring(dot);
+
+  let number = 2;
+  let newName = `${base}-${number}${ext}`;
+
+  while (usedNames.has(newName)) {
+
+    number++;
+
+    newName =
+      `${base}-${number}${ext}`;
+
+  }
+
+  usedNames.add(newName);
+
+  return newName;
+
+}
+
+
+function allMods() {
+
+  return Object.values(categories).flat();
+
+}
+
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+
+function render() {
+
+  const root =
+    document.getElementById("mods");
+
+  root.innerHTML = "";
+
+  Object.entries(categories).forEach(
+    ([categoryName, mods]) => {
+
+      const category =
+        document.createElement("section");
+
+      category.className = "category";
+
+      const title =
+        document.createElement("h2");
+
+      title.textContent = categoryName;
+
+      category.appendChild(title);
+
+
+      mods.forEach(mod => {
+
+        const row =
+          document.createElement("div");
+
+        row.className = "mod";
+
+
+        const info =
+          document.createElement("div");
+
+        const name =
+          document.createElement("div");
+
+        name.className = "mod-name";
+
+        name.textContent =
+          niceName(mod.id);
+
+
+        const version =
+          document.createElement("span");
+
+        version.className =
+          "mod-version";
+
+        version.textContent =
+          `v${mod.version}`;
+
+
+        info.appendChild(name);
+        info.appendChild(version);
+
+
+        const buttons =
+          document.createElement("div");
+
+        buttons.className = "btns";
+
+
+        const pageButton =
+          document.createElement("button");
+
+        pageButton.className = "page";
+
+        pageButton.textContent =
+          "Modrinth";
+
+        pageButton.onclick = () => {
+
+          window.open(
+            mod.page,
+            "_blank",
+            "noopener,noreferrer"
+          );
+
+        };
+
+
+        const downloadButton =
+          document.createElement("button");
+
+        downloadButton.className =
+          "download";
+
+        downloadButton.textContent =
+          "Download";
+
+        downloadButton.onclick = () =>
+          downloadOne(
+            mod,
+            downloadButton
+          );
+
+
+        buttons.appendChild(pageButton);
+        buttons.appendChild(downloadButton);
+
+        row.appendChild(info);
+        row.appendChild(buttons);
+
+        category.appendChild(row);
+
+      });
+
+
+      root.appendChild(category);
+
+    }
+  );
+
+}
+
+
+/* =========================================================
+   INDIVIDUAL DOWNLOAD
+   ========================================================= */
+
+async function downloadOne(mod, button) {
+
+  const originalText =
+    button.textContent;
+
+  try {
+
+    button.disabled = true;
+    button.textContent = "Downloading...";
+
+
+    const response =
+      await fetch(
+        mod.file,
+        {
+          method: "GET",
+          mode: "cors",
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        `HTTP ${response.status}`
+      );
+
+    }
+
+
+    const blob =
+      await response.blob();
+
+
+    if (!blob.size) {
+
+      throw new Error(
+        "Downloaded file is empty"
+      );
+
+    }
+
+
+    saveAs(
+      blob,
+      getFileName(mod.file)
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      `Failed to download ${mod.id}:`,
+      error
+    );
+
+    alert(
+      `Could not download ${niceName(mod.id)}.\n\n` +
+      `If you're opening this HTML directly from your computer, ` +
+      `upload it to a web host/server first. Browser CORS restrictions ` +
+      `can prevent ZIP downloads from a file:// page.`
+    );
+
+  } finally {
+
+    button.disabled = false;
+    button.textContent = originalText;
+
+  }
+
+}
+
+
+/* =========================================================
+   PROGRESS
+   ========================================================= */
+
+function setProgress(
+  completed,
+  total,
+  text
+) {
+
+  const percentage =
+    Math.round(
+      (completed / total) * 100
+    );
+
+
+  document
+    .getElementById("progressFill")
+    .style.width =
+      `${percentage}%`;
+
+
+  document
+    .getElementById("progressText")
+    .textContent =
+      `${text} (${completed}/${total}) — ${percentage}%`;
+
+}
+
+
+/* =========================================================
+   FULL ZIP DOWNLOAD
+   ========================================================= */
+
+async function downloadAll() {
+
+  const button =
+    document.getElementById(
+      "bulkButton"
+    );
+
+  const progressBox =
+    document.getElementById(
+      "progressBox"
+    );
+
+  const progressText =
+    document.getElementById(
+      "progressText"
+    );
+
+  const status =
+    document.getElementById(
+      "status"
+    );
+
+  const errorList =
+    document.getElementById(
+      "errorList"
+    );
+
+
+  const mods =
+    allMods();
+
+
+  if (!mods.length) {
+
+    alert(
+      "There are no mods in the pack."
+    );
+
+    return;
+
+  }
+
+
+  button.disabled = true;
+  button.textContent =
+    "Building Pack...";
+
+
+  progressBox.style.display =
+    "block";
+
+  errorList.innerHTML = "";
+  status.textContent = "";
+
+
+  const zip =
+    new JSZip();
+
+
+  const usedNames =
+    new Set();
+
+
+  const failed = [];
+
+  let completed = 0;
+
+
+  setProgress(
+    0,
+    mods.length,
+    "Preparing downloads..."
+  );
+
+
+  /*
+   * Download sequentially rather than firing
+   * 38 requests simultaneously.
+   *
+   * This is slower, but considerably more
+   * reliable and easier on the CDN/browser.
+   */
+
+  for (const mod of mods) {
+
+    progressText.textContent =
+      `Downloading ${niceName(mod.id)}...`;
+
+
+    try {
+
+      const response =
+        await fetch(
+          mod.file,
+          {
+            method: "GET",
+            mode: "cors",
+            cache: "no-store"
+          }
+        );
+
+
+      if (!response.ok) {
+
+        throw new Error(
+          `HTTP ${response.status}`
+        );
+
+      }
+
+
+      const blob =
+        await response.blob();
+
+
+      if (!blob.size) {
+
+        throw new Error(
+          "Empty response"
+        );
+
+      }
+
+
+      const originalName =
+        getFileName(mod.file);
+
+
+      const fileName =
+        uniqueFileName(
+          originalName,
+          usedNames
+        );
+
+
+      zip.file(
+        fileName,
+        blob
+      );
+
+
+    } catch (error) {
+
+      console.error(
+        `Failed: ${mod.id}`,
+        error
+      );
+
+
+      failed.push({
+        id: mod.id,
+        error: error.message
+      });
+
+    }
+
+
+    completed++;
+
+
+    setProgress(
+      completed,
+      mods.length,
+      failed.length
+        ? `Downloaded ${niceName(mod.id)}`
+        : `Downloaded ${niceName(mod.id)}`
+    );
+
+  }
+
+
+  /* =======================================================
+     HANDLE FAILURES
+     ======================================================= */
+
+  if (failed.length) {
+
+    status.textContent =
+      `${failed.length} mod(s) failed to download.`;
+
+
+    failed.forEach(item => {
+
+      const li =
+        document.createElement("li");
+
+      li.textContent =
+        `✕ ${niceName(item.id)} — ${item.error}`;
+
+      errorList.appendChild(li);
+
+    });
+
+
+    button.disabled = false;
+
+    button.textContent =
+      "Retry Full Pack (ZIP)";
+
+
+    progressText.textContent =
+      "Download finished with errors.";
+
+
+    /*
+     * Important:
+     *
+     * Don't silently generate a partial ZIP.
+     *
+     * The user should know that something
+     * went wrong before receiving the pack.
+     */
+
+    alert(
+      `${failed.length} mod(s) could not be downloaded.\n\n` +
+      `The ZIP was NOT created so you don't accidentally install an incomplete pack.\n\n` +
+      `Check the error list below and try again.`
+    );
+
+    return;
+
+  }
+
+
+  /* =======================================================
+     GENERATE ZIP
+     ======================================================= */
+
+  progressText.textContent =
+    "All mods downloaded. Building ZIP...";
+
+  status.textContent =
+    `${mods.length} mods ready.`;
+
+
+  try {
+
+    const zipBlob =
+      await zip.generateAsync(
+        {
+          type: "blob",
+
+          compression: "DEFLATE",
+
+          compressionOptions: {
+            level: 6
+          }
+        },
+
+        metadata => {
+
+          const zipPercent =
+            Math.round(
+              metadata.percent
+            );
+
+
+          document
+            .getElementById(
+              "progressFill"
+            )
+            .style.width =
+              `${zipPercent}%`;
+
+
+          progressText.textContent =
+            `Building ZIP... ${zipPercent}%`;
+
+        }
+
+      );
+
+
+    /*
+     * Download the finished ZIP.
+     */
+
+    saveAs(
+      zipBlob,
+      "Fabric-26.2-Mod-Pack.zip"
+    );
+
+
+    progressText.textContent =
+      "Done! ZIP downloaded successfully ✅";
+
+
+    status.textContent =
+      `${mods.length} mods packed successfully.`;
+
+
+    document
+      .getElementById(
+        "progressFill"
+      )
+      .style.width =
+        "100%";
+
+
+    button.textContent =
+      "Download Full Pack Again";
+
+
+  } catch (error) {
+
+    console.error(
+      "ZIP generation failed:",
+      error
+    );
+
+
+    progressText.textContent =
+      "ZIP generation failed ❌";
+
+
+    status.textContent =
+      error.message;
+
+
+    alert(
+      "The mods downloaded, but the ZIP could not be created.\n\n" +
+      error.message
+    );
+
+
+    button.textContent =
+      "Try ZIP Again";
+
+  }
+
+
+  button.disabled = false;
+
+}
+
+
+/* =========================================================
+   START
+   ========================================================= */
+
 render();
+
 </script>
+
 </body>
 </html>
